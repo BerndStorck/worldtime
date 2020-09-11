@@ -15,17 +15,17 @@ ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/
 
 
 if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface language.
-	UILANG="Deutsch"
-	# PROG_TITLE=
-	INPUT_PROMPT="Geben Sie einen der obigen Ortsnamen ein:"
-	WRONG_INPUT_MSG="FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!"
-	ANSWER_START="Uhrzeit in"
+    UILANG="Deutsch"
+    # PROG_TITLE=
+    INPUT_PROMPT="Geben Sie einen der obigen Ortsnamen ein:"
+    WRONG_INPUT_MSG="FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!"
+    ANSWER_START="Uhrzeit in"
 else
-	UILANG="English"
-	# PROG_TITLE=
-	INPUT_PROMPT="Write one of those names for selection:"
-	WRONG_INPUT_MSG="WRONG INPUT: This name is not a valid choice!"
-	ANSWER_START="Current time in"
+    UILANG="English"
+    # PROG_TITLE=
+    INPUT_PROMPT="Write one of those names for selection:"
+    WRONG_INPUT_MSG="WRONG INPUT: This name is not a valid choice!"
+    ANSWER_START="Current time in"
 fi
 
 
@@ -90,9 +90,9 @@ function list_available {
 # default german town names. After this the user can select a town for
 # which the time zone notation is known by the script.
 
-	echo
-	sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" | sort | tr '\n' ' ' | reformat -l 1
-	echo
+    echo
+    sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" | sort | tr '\n' ' ' | reformat -l 1
+    echo
 }
 
 function capitalize {
@@ -106,58 +106,58 @@ function capitalize {
 # It might give simpler, shorter ways to code it than used in this
 # version of the script.
 
-	for i in $*
-	do
-		first_letter="${1:0:1}"
-		first_letter="${first_letter^^}"
-		word_tail="${1:1}"
-		ort+="${first_letter}${word_tail,,} "
-		shift
-	done
-	ort="${ort:0:-1}"
+    for i in $*
+    do
+        first_letter="${1:0:1}"
+        first_letter="${first_letter^^}"
+        word_tail="${1:1}"
+        ort+="${first_letter}${word_tail,,} "
+        shift
+    done
+    ort="${ort:0:-1}"
 }
 
 if [ "$#" = "0" ]; then  # Menu mode, if the user has not giuven a town name at script call.
-	clear
-	list_available
-	read -rp " $INPUT_PROMPT " eins zwei
+    clear
+    list_available
+    read -rp " $INPUT_PROMPT " eins zwei
 
-	capitalize "$eins" "$zwei"
-	unset eins zwei
-	if ! grep -Fq "${ort}:" $ZONES_FILE; then
-		echo -e "\n $WRONG_INPUT_MSG\n"
-		sleep 2
-		exit 1
-	fi
+    capitalize "$eins" "$zwei"
+    unset eins zwei
+    if ! grep -Fq "${ort}:" $ZONES_FILE; then
+        echo -e "\n $WRONG_INPUT_MSG\n"
+        sleep 2
+        exit 1
+    fi
 else
-	case "$1" in
+    case "$1" in
 
-		--hilf|--hilfe|-hilf)  # Calls German help regardless of system settings for language.
-			hilfe_seite
-			exit 0
-			;;
-		--help|-h|-help)
-			if [ "$UILANG" == "Deutsch" ]; then
-				hilfe_seite
-			else
-				help_page
-			fi
-			exit 0
-			;;
-		--version|-\#)   # For possible bug reports.
-			if [ "$1" = "--version" ]; then
-				echo -n "$PROG_NAME "
-			fi
-			echo "$PROG_VERSION"
-			exit 0
-			;;
-		*)
-			capitalize "$@"
-			if ! grep -Fq "${ort}:" $ZONES_FILE; then  # Recursive call, if the
-				worldtime                          # parameters from call are
-				exit 1                             # not machting a know key
-			fi                                         # value.
-	esac
+        --hilf|--hilfe|-hilf)  # Calls German help regardless of system settings for language.
+            hilfe_seite
+            exit 0
+            ;;
+        --help|-h|-help)
+            if [ "$UILANG" == "Deutsch" ]; then
+                hilfe_seite
+            else
+                help_page
+            fi
+            exit 0
+            ;;
+        --version|-\#)   # For possible bug reports.
+            if [ "$1" = "--version" ]; then
+                echo -n "$PROG_NAME "
+            fi
+            echo "$PROG_VERSION"
+            exit 0
+            ;;
+        *)
+            capitalize "$@"
+            if ! grep -Fq "${ort}:" $ZONES_FILE; then  # Recursive call, if the
+                worldtime                              # parameters from call are
+                exit 1                                 # not machting a know key
+            fi                                         # value.
+    esac
 fi
 
 zone="$(grep -F "$ort" $ZONES_FILE | cut -d: -f2)"
