@@ -1,6 +1,6 @@
 # worldtime 
 
-Mit dem Skript kann man schnell im Terminal die Uhrzeit für entfernte Orte abfragen.
+Mit dem Skript kann man schnell im Terminal die Uhrzeit für ferne Orte abfragen.
 
 ## Installation
 
@@ -8,11 +8,10 @@ Mit dem Skript kann man schnell im Terminal die Uhrzeit für entfernte Orte abfr
 
 2. Die Datendatei `timezones` muss im Verzeichnis `/usr/local/share` liegen.
 
-3. 
-   ## Bedienung
+## Bedienung
 
 
-Das Skript kennt die Zeitzone einer kleinen Auswahl von Städten weltweit.
+Das Skript kennt die Zeitzone einer kleinen Auswahl von Städten der Welt.
 
 ### Aufruf ohne Argumente
 
@@ -64,10 +63,10 @@ Beirut:Asia/Beirut
 In dieser Datei steht in jeder Zeile ein Paar aus Schlüssel und Zeitzonenbezeichnung, die Datenfelder in jeder Zeile sind durch einen Doppelpunkt voneinander abgegrenzt: 
 
 ```
-Schlüssel:Wert
+Schlüssel:Zeitzonenbezeichnung
 ```
 
-Der Schlüssel ist im Standardfall ein Ortsname. Die Zeitzonenbezeichnung muss der oben beispielhaft gezeigten Art sein, beispielsweise "
+Der Schlüssel ist im Standardfall ein Ortsname. Die Zeitzonenbezeichnung muss der oben beispielhaft gezeigten Art sein, beispielsweise "Europe/Helsinki" oder "Asia/Dubai".
 
 ### Arbeitsweise des Programms
 
@@ -91,24 +90,22 @@ Die Datei `timezones` ist alphabetisch sortiert. Man kann sie mit einem einfache
 >
 > […]
 
-Der Ortsname muss eindeutig sein, darf also nur einmal in der Datei vorkommen. Er darf aus einem oder maximal zwei Wörter bestehen. Der erste Buchstabe jedes der Namenswörter muss groß geschrieben werden. 
+**Der Ortsname muss eindeutig sein, darf also nur einmal in der Datei vorkommen. Er darf aus einem oder maximal zwei Wörter bestehen. Der erste Buchstabe jedes der Namenswörter muss groß geschrieben werden.** 
 
 ### Eine individuelle Datei erstellen
 
-Da das Programm freilich nicht weiß, was ein Schlüssel bedeutget, können auch andere Zeichenketten als Schlüssel benutzt werden. Das eröffnet die Möglichkeit, sich eine individuelle Datei `timeszones` mit den Namen von Familienangehörigen oder anderne Kontakten und der Zeitzone anzulegen, in der sie wohnen oder arbeiten.
+Da das Programm freilich nicht weiß, was ein Schlüssel bedeutet, muss der Schlüssel kein Ortsname sein. Das eröffnet die Möglichkeit, sich eine individuelle Datei `timeszones` mit den Namen von Familienangehörigen oder anderen Kontakten und der Zeitzone anzulegen, in der sie wohnen oder arbeiten.
 
- […]
-
-David:Asia/Jerusalem
-
-Mam:Europe/Berlin
-
-Onkel Robert:Australia/Sydney
-
-[…]
-
+> […]
+>
+> David:Asia/Jerusalem
+>
+> Mam:Europe/Berlin
+>
+> Onkel Robert:Australia/Sydney
+>
+> […]
 ### Zeitzonenlisten
-
 Um eine Erweiterung der Datei `timezones` oder die Erstellung einer indviduellen Datei zu erleichtern, habe ich zwei Listen angefertigt.
 
 | Datei          | Inhalt                                                       |
