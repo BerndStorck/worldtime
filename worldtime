@@ -30,8 +30,8 @@ cat << _EOT_
 
   $SCRIPT_NAME
 
-      Zeigt eine Liste von Ortsnamen an, aus denenman einen Namen
-      auswählten kann, um die entsprechende aktuelle Ortszeit anzeigen
+      Zeigt eine Liste von Ortsnamen an, aus denen man einen Namen
+      auswählten kann, um die zugehörige aktuelle Ortszeit anzeigen
       zu lassen.
 
   $SCRIPT_NAME new york
