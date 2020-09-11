@@ -1,0 +1,144 @@
+#! /bin/bash
+#
+# worldtime 1.0.0, 2020-09-09
+#
+# Shows the local time of one user seleced town from a list of seleced
+# towns all over the world.
+#
+# Bernd Storck, https://www.facebook.com/BStLinux/
+#
+
+PROG_NAME="worldtime"
+PROG_VERSION="1.0.0"
+SCRIPT_NAME="$(basename "$0")"
+
+if [ "${LANG::2}" == "de" ]; then
+	UILANG="Deutsch"
+	# PROG_TITLE=
+else
+	UILANG="English"
+	# PROG_TITLE=
+fi
+
+
+function hilfe_seite {
+cat << _EOT_
+
+ $PROG_NAME (Version $PROG_VERSION) - Ortzeit ausgewählter Orte anzeigen
+
+ AUFRUFBEISPIELE
+
+  $SCRIPT_NAME
+
+      Zeigt eine Liste von Ortsnamen an, aus denenman einen Namen
+      auswählten kann, um die entsprechende aktuelle Ortszeit anzeigen
+      zu lassen.
+
+  $SCRIPT_NAME new york
+
+      Zeigt die aktuelle Ortszeit von New York an.
+
+  $SCRIPT_NAME --hilf     # Zeigt diese Hilfe an.
+  $SCRIPT_NAME --version  # Versionsinfo anzeigen
+  $SCRIPT_NAME -#         # Nur die Versionsnummer ausgeben.
+
+ Kodiert von Bernd Storck, facebook.com/BStLinux/
+ (GNU/General Public License version 2.0)
+
+_EOT_
+}
+
+
+function help_page {
+cat << _EOT_
+
+ $PROG_NAME (Version $PROG_VERSION) - Show local time of a foreign town
+
+ EXAMPLES
+
+  $SCRIPT_NAME
+
+      Shows a list of town names, from which you can chose one to see
+      the local time of this town.
+
+  $SCRIPT_NAME new york
+
+      Shows the current time of New York.
+
+  $SCRIPT_NAME --help     # Shows this help page.
+  $SCRIPT_NAME --version  # Shows progam name and version number.
+  $SCRIPT_NAME -#         # shows only the version number.
+
+ Coded by Bernd Storck, facebook.com/BStLinux/
+ (GNU/General Public License version 2.0)
+
+_EOT_
+}
+
+zones_file="/usr/local/share/timezones"
+function list_available {
+	echo
+	cut -d: -f1 $zones_file | sed -E 's/^(.*)$/"\1"/' | tr '\n' ' ' | reformat -l 1
+	echo
+}
+
+function capitalize {
+	for i in $*
+	do
+		first_letter="${1:0:1}"
+		first_letter="${first_letter^^}"
+		word_tail="${1:1}"
+		ort+="${first_letter}${word_tail,,} "
+		shift
+	done
+	ort="${ort:0:-1}"
+}
+
+if [ "$#" = "0" ]; then
+	clear
+	list_available
+	read -rp " Geben Sie einen der obigen Ortsnamen ein: " eins zwei
+
+	capitalize "$eins" "$zwei"
+	unset eins zwei wort
+	if ! grep -Fq "${ort}:" $zones_file; then
+		echo -e "\n FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!\n"
+		sleep 2
+		exit 1
+	fi
+else
+	case "$1" in
+
+		--hilf|--hilfe|-hilf)
+			hilfe_seite
+			exit 0
+			;;
+		--help|-h|-help)
+			if [ "$UILANG" == "Deutsch" ]; then
+				hilfe_seite
+			else
+				help_page
+			fi
+			exit 0
+			;;
+		--version|-\#)
+			if [ "$1" = "--version" ]; then
+				echo -n "$PROG_NAME "
+			fi
+			echo "$PROG_VERSION"
+			exit 0
+			;;
+		*)
+			capitalize "$@"
+			if ! grep -Fq "${ort}:" $zones_file; then
+				worldtime
+				exit 1
+			fi
+	esac
+fi
+
+zone="$(grep -F "$ort" $zones_file | cut -d: -f2)"
+
+echo -e "\n Uhrzeit in ${ort}: $(eval "TZ=\"$zone\" date")\n"
+
+exit 0
