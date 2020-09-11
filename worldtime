@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime 1.0.3, 2020-09-11
+# worldtime 1.0.4, 2020-09-11
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world.
@@ -9,7 +9,7 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.0.3"
+PROG_VERSION="1.0.4"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/New_York".
 
@@ -17,9 +17,14 @@ ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/
 if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface language.
 	UILANG="Deutsch"
 	# PROG_TITLE=
+	INPUT_PROMPT="Geben Sie einen der obigen Ortsnamen ein:"
+	WRONG_INPUT_MSG="FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!"
 	ANSWER_START="Uhrzeit in"
 else
 	UILANG="English"
+	# PROG_TITLE=
+	INPUT_PROMPT="Write one of those names for selection:"
+	WRONG_INPUT_MSG="WRONG INPUT: This name is not a valid choice!"
 	ANSWER_START="Current time in"
 	# PROG_TITLE=
 fi
@@ -114,12 +119,12 @@ function capitalize {
 if [ "$#" = "0" ]; then  # Menu mode, if the user has not giuven a town name at script call.
 	clear
 	list_available
-	read -rp " Geben Sie einen der obigen Ortsnamen ein: " eins zwei
+	read -rp " $INPUT_PROMPT " eins zwei
 
 	capitalize "$eins" "$zwei"
-	unset eins zwei wort
+	unset eins zwei
 	if ! grep -Fq "${ort}:" $ZONES_FILE; then
-		echo -e "\n FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!\n"
+		echo -e "\n $WRONG_INPUT_MSG\n"
 		sleep 2
 		exit 1
 	fi
