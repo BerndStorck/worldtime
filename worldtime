@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime 1.0.2, 2020-09-11
+# worldtime 1.0.3, 2020-09-11
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world.
@@ -9,19 +9,23 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.0.2"
-SCRIPT_NAME="$(basename "$0")"
+PROG_VERSION="1.0.3"
+SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
+ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/New_York".
 
-if [ "${LANG::2}" == "de" ]; then
+
+if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface language.
 	UILANG="Deutsch"
 	# PROG_TITLE=
+	ANSWER_START="Uhrzeit in"
 else
 	UILANG="English"
+	ANSWER_START="Current time in"
 	# PROG_TITLE=
 fi
 
 
-function hilfe_seite {
+function hilfe_seite {  # German help page.
 cat << _EOT_
 
  $PROG_NAME (Version $PROG_VERSION) - Ortzeit ausgewählter Orte anzeigen
@@ -75,14 +79,27 @@ cat << _EOT_
 _EOT_
 }
 
-zones_file="/usr/local/share/timezones"
 function list_available {
+# Parses the file $ZONES_FILE, which is a small list or database file
+# with key-value-pairs for retrieving a time zone name like
+# "Europe/Berlin" for listing all key values, which are by default
+# german town names. So that the user can selectt a town for which the
+# time zone notation is known by the script.
+
 	echo
-	sed -E 's/^(.*):.*$/"\1"/' "$zones_file" | sort | tr '\n' ' ' | reformat -l 1
+	sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" | sort | tr '\n' ' ' | reformat -l 1
 	echo
 }
 
 function capitalize {
+# Provides the case independence of user input. The user can write the
+# key values aka twon names regardlesss of upper or lower case.
+#
+# This function will transform an user input to tow word with each word
+# beginning with a capital letter folloewd by lower case letters.
+#
+# It might give simpler, shorter ways to code it.
+
 	for i in $*
 	do
 		first_letter="${1:0:1}"
@@ -94,14 +111,14 @@ function capitalize {
 	ort="${ort:0:-1}"
 }
 
-if [ "$#" = "0" ]; then
+if [ "$#" = "0" ]; then  # Menu mode, if the user has not giuven a town name at script call.
 	clear
 	list_available
 	read -rp " Geben Sie einen der obigen Ortsnamen ein: " eins zwei
 
 	capitalize "$eins" "$zwei"
 	unset eins zwei wort
-	if ! grep -Fq "${ort}:" $zones_file; then
+	if ! grep -Fq "${ort}:" $ZONES_FILE; then
 		echo -e "\n FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!\n"
 		sleep 2
 		exit 1
@@ -109,7 +126,7 @@ if [ "$#" = "0" ]; then
 else
 	case "$1" in
 
-		--hilf|--hilfe|-hilf)
+		--hilf|--hilfe|-hilf)  # Calls German help regardless of system settigns for language.
 			hilfe_seite
 			exit 0
 			;;
@@ -121,7 +138,7 @@ else
 			fi
 			exit 0
 			;;
-		--version|-\#)
+		--version|-\#)   # For possible bug reports.
 			if [ "$1" = "--version" ]; then
 				echo -n "$PROG_NAME "
 			fi
@@ -130,15 +147,14 @@ else
 			;;
 		*)
 			capitalize "$@"
-			if ! grep -Fq "${ort}:" $zones_file; then
-				worldtime
-				exit 1
-			fi
+			if ! grep -Fq "${ort}:" $ZONES_FILE; then  # Recursive call, if the
+				worldtime                          # parameters from call are
+				exit 1                             # not machting a know key
+			fi                                         # value.
 	esac
 fi
 
-zone="$(grep -F "$ort" $zones_file | cut -d: -f2)"
-
-echo -e "\n Uhrzeit in ${ort}: $(eval "TZ=\"$zone\" date")\n"
+zone="$(grep -F "$ort" $ZONES_FILE | cut -d: -f2)"
+echo -e "\n $ANSWER_START ${ort}: $(eval "TZ=\"$zone\" date")\n"
 
 exit 0
