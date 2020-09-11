@@ -78,7 +78,7 @@ _EOT_
 zones_file="/usr/local/share/timezones"
 function list_available {
 	echo
-	sed -E 's/^(.*):.*$/"\1"/' "$zones_file" | tr '\n' ' ' | reformat -l 1
+	sed -E 's/^(.*):.*$/"\1"/' "$zones_file" | sort | tr '\n' ' ' | reformat -l 1
 	echo
 }
 
