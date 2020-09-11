@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime 1.0.1, 2020-09-09
+# worldtime 1.0.2, 2020-09-11
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world.
@@ -9,7 +9,7 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.0.1"
+PROG_VERSION="1.0.2"
 SCRIPT_NAME="$(basename "$0")"
 
 if [ "${LANG::2}" == "de" ]; then
