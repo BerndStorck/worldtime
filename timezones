@@ -14,6 +14,7 @@ Dublin:Europe/Dublin
 Havanna:America/Havana
 Hong Kong:Asia/Hong_Kong
 Istanbul:Europe/Istanbul
+Jakarta:Asia/Jakarta
 Jerusalem:Asia/Jerusalem
 Kiew:Europe/Kiev
 Lissabon:Europe/Lisbon
@@ -21,16 +22,22 @@ London:Europe/London
 Los Angeles:America/Los_Angeles
 Luxemburg:Europe/Luxembourg
 Madrid:Europe/Madrid
+Manila:Asia/Manila
 Melbourne:Australia/Melbourne
+Mexiko-Stadt:America/Mexico_City
 Moskau:Europe/Moscow
+Neu Delhi:Asia/Kolkata
 New York:America/New_York
 Oslo:Europe/Oslo
 Paris:Europe/Paris
+Peking:Asia/Shanghai
 Phoenix:America/Phoenix
 Prag:Europe/Prague
 Riga:Europe/Riga
 Rom:Europe/Rome
+Sao Paulo:America/Sao_Paulo
 Seoul:Asia/Seoul
+Shanghai:Asia/Shanghai
 Stockholm:Europe/Stockholm
 Sydney:Australia/Sydney
 Teheran:Asia/Tehran
