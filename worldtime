@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime 1.0.0, 2020-09-09
+# worldtime 1.0.1, 2020-09-09
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world.
@@ -9,7 +9,7 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.0.0"
+PROG_VERSION="1.0.1"
 SCRIPT_NAME="$(basename "$0")"
 
 if [ "${LANG::2}" == "de" ]; then
@@ -78,7 +78,7 @@ _EOT_
 zones_file="/usr/local/share/timezones"
 function list_available {
 	echo
-	cut -d: -f1 $zones_file | sed -E 's/^(.*)$/"\1"/' | tr '\n' ' ' | reformat -l 1
+	sed -E 's/^(.*):.*$/"\1"/' "$zones_file" | tr '\n' ' ' | reformat -l 1
 	echo
 }
 
