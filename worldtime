@@ -127,7 +127,8 @@ function capitalize {
 }
 
 function exists_key {
-# Checks language indenedent if the key aka town name is in the timzones database file.
+# Checks language independent whether the key aka town name is in the
+# timzones database file.
     [ "$UILANG" = "Deutsch" ] && key="${ort}:" || key="/${english_key}"
     if grep -Fq "$key" $ZONES_FILE; then
         return 0
