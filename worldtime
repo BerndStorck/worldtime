@@ -10,7 +10,6 @@
 
 PROG_NAME="worldtime"
 PROG_VERSION="1.1.2"
-SCRIPT_CALL="$0"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/New_York".
 
@@ -96,9 +95,11 @@ function list_available {
 #
     echo
     if [ "$UILANG" = "Deutsch" ]; then
-        sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" | sort | tr '\n' ' ' | reformat -l 1
+        sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
+	sort | tr '\n' ' ' | reformat -l 1
     else
-        sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" | sort | uniq | tr '\n' ' ' | reformat -l 1
+        sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
+	sort | uniq | tr '\n' ' ' | reformat -l 1
     fi
     echo
 }
@@ -176,7 +177,7 @@ else
         *)
             capitalize "$@"
             if ! exists_key; then   # Recursive call, if the
-                "$SCRIPT_CALL"      # parameters from call are
+                "$0"                # parameters from call are
                 exit 1              # not machting a know key
             fi                      # value. Starts in menu mode.
     esac
