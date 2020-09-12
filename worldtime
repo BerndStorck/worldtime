@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime 1.0.5, 2020-09-11
+# worldtime 1.1.0, 2020-09-12
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world.
@@ -9,7 +9,7 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.0.5"
+PROG_VERSION="1.1.0"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/New_York".
 
@@ -20,12 +20,14 @@ if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface
     INPUT_PROMPT="Geben Sie einen der obigen Ortsnamen ein:"
     WRONG_INPUT_MSG="FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!"
     ANSWER_START="Uhrzeit in"
+    FIELD_SEPARATOR=":"
 else
     UILANG="English"
     # PROG_TITLE=
     INPUT_PROMPT="Write one of those names for selection:"
     WRONG_INPUT_MSG="WRONG INPUT: This name is not a valid choice!"
     ANSWER_START="Current time in"
+    FIELD_SEPARATOR="/"
 fi
 
 
@@ -91,7 +93,11 @@ function list_available {
 # which the time zone notation is known by the script.
 
     echo
-    sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" | sort | tr '\n' ' ' | reformat -l 1
+    if [ "$UILANG" = "Deutsch" ]; then
+        sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" | sort | tr '\n' ' ' | reformat -l 1
+    else
+        sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" | sort | uniq | tr '\n' ' ' | reformat -l 1
+    fi
     echo
 }
 
@@ -106,15 +112,28 @@ function capitalize {
 # It might give simpler, shorter ways to code it than used in this
 # version of the script.
 
-    for i in $*
+    words="$(sed -E 's:-:@ :g' <<< "$*")"    ### Masking hyphens and splitting at hyphen in multiple words.
+    for i in $words
     do
-        first_letter="${1:0:1}"
-        first_letter="${first_letter^^}"
-        word_tail="${1:1}"
-        ort+="${first_letter}${word_tail,,} "
+        first_letter="${i:0:1}"
+        first_letter="${first_letter^^}"  # to upper case
+        word_tail="${i:1}"
+        ort+="${first_letter}${word_tail,,} "  # Includes to lower case for word_tail.
         shift
     done
-    ort="${ort:0:-1}"
+    ort="$(sed -E 's:@ :-:g' <<< "$ort")"    ### Demasking hyphens.
+    ort="${ort:0:-1}"  # Remove pending last space.
+    english_key="$(sed -E 's/ /_/' <<< "$ort")"
+}
+
+function exists_key {
+# Checks language indenedent if the key aka town name is in the timzones database file.
+    [ "$UILANG" = "Deutsch" ] && key="${ort}:" || key="/${english_key}"
+    if grep -Fq "$key" $ZONES_FILE; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 if [ "$#" = "0" ]; then  # Menu mode, if the user has not giuven a town name at script call.
@@ -124,7 +143,7 @@ if [ "$#" = "0" ]; then  # Menu mode, if the user has not giuven a town name at 
 
     capitalize "$eins" "$zwei"
     unset eins zwei
-    if ! grep -Fq "${ort}:" $ZONES_FILE; then
+    if ! exists_key; then
         echo -e "\n $WRONG_INPUT_MSG\n"
         sleep 2
         exit 1
@@ -153,14 +172,14 @@ else
             ;;
         *)
             capitalize "$@"
-            if ! grep -Fq "${ort}:" $ZONES_FILE; then  # Recursive call, if the
-                worldtime                              # parameters from call are
-                exit 1                                 # not machting a know key
-            fi                                         # value.
+            if ! exists_key; then   # Recursive call, if the
+                worldtime           # parameters from call are
+                exit 1              # not machting a know key
+            fi                      # value. Starts in menu mode.
     esac
 fi
 
-zone="$(grep -F "$ort" $ZONES_FILE | cut -d: -f2)"
+zone="$(grep -Ei "$key" $ZONES_FILE | cut -d"$FIELD_SEPARATOR" -f2)"
 echo -e "\n $ANSWER_START ${ort}: $(eval "TZ=\"$zone\" date")\n"
 
 exit 0
