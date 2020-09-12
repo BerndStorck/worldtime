@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime 1.1.2, 2020-09-12
+# worldtime 1.2.0, 2020-09-12
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world.
@@ -9,7 +9,7 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.1.2"
+PROG_VERSION="1.2.0"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/New_York".
 
@@ -36,6 +36,13 @@ cat << _EOT_
 
  $PROG_NAME (Version $PROG_VERSION) - Ortzeit ausgewählter Orte anzeigen
 
+ AUFRUFPARAMETER / OPTIONEN
+    --list|-l		 Die Zeitzonenliste anzeigen
+    --edit|-e		 Die Zeitzonenliste bearbeiten
+    --hilf|--help|-h	 Diese Hilfe anzeigen
+    --version		 Versionsinfo anzeigen
+    -#			 Die Versionsnummer ausgeben.
+
  AUFRUFBEISPIELE
 
   $SCRIPT_NAME
@@ -47,10 +54,6 @@ cat << _EOT_
   $SCRIPT_NAME new york
 
       Zeigt die aktuelle Ortszeit von New York an.
-
-  $SCRIPT_NAME --hilf     # Zeigt diese Hilfe an.
-  $SCRIPT_NAME --version  # Versionsinfo anzeigen
-  $SCRIPT_NAME -#         # Nur die Versionsnummer ausgeben.
 
  Kodiert von Bernd Storck, facebook.com/BStLinux/
  (GNU/General Public License version 2.0)
@@ -64,6 +67,14 @@ cat << _EOT_
 
  $PROG_NAME (Version $PROG_VERSION) - Show local time of a foreign town
 
+ OPTIONS
+
+  --list|-l		 Show the list of time zones.
+  --edit|-e		 Edit the lsit of time zones.
+  --help|-h		 Display this help page.
+  --version		 Show program name and version number.
+  -#			 Print the version number.
+
  EXAMPLES
 
   $SCRIPT_NAME
@@ -74,10 +85,6 @@ cat << _EOT_
   $SCRIPT_NAME new york
 
       Shows the current time of New York.
-
-  $SCRIPT_NAME --help     # Shows this help page.
-  $SCRIPT_NAME --version  # Shows progam name and version number.
-  $SCRIPT_NAME -#         # shows only the version number.
 
  Coded by Bernd Storck, facebook.com/BStLinux/
  (GNU/General Public License version 2.0)
@@ -96,10 +103,10 @@ function list_available {
     echo
     if [ "$UILANG" = "Deutsch" ]; then
         sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
-	sort | tr '\n' ' ' | reformat -l 1
+    sort | tr '\n' ' ' | reformat -l 1
     else
         sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
-	sort | uniq | tr '\n' ' ' | reformat -l 1
+    sort | uniq | tr '\n' ' ' | reformat -l 1
     fi
     echo
 }
@@ -154,7 +161,14 @@ if [ "$#" = "0" ]; then  # Menu mode, if the user has not giuven a town name at 
     fi
 else
     case "$1" in
-
+        --list|-l|-list)
+            less "$ZONES_FILE"
+            exit 0
+            ;;
+        --edit|-e|-edit)
+            "$EDITOR" "$ZONES_FILE"
+            exit 0
+            ;;
         --hilf|--hilfe|-hilf)  # Calls German help regardless of system settings for language.
             hilfe_seite
             exit 0
