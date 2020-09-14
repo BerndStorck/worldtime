@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime 1.2.0, 2020-09-12
+# worldtime 1.2.1, 2020-09-14
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world.
@@ -9,10 +9,14 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.2.0"
+PROG_VERSION="1.2.1"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/New_York".
 
+if ! which reformat &> /dev/null; then
+	echo "reformat will be installed…"
+	sudo apt-get -qq install reformat
+fi
 
 if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface language.
     UILANG="Deutsch"
@@ -39,7 +43,7 @@ cat << _EOT_
  AUFRUFPARAMETER / OPTIONEN
     --list|-l		 Die Zeitzonenliste anzeigen
     --edit|-e		 Die Zeitzonenliste bearbeiten
-    --hilf|--help|-h	 Diese Hilfe anzeigen
+    --hilf		 Diese Hilfe anzeigen
     --version		 Versionsinfo anzeigen
     -#			 Die Versionsnummer ausgeben.
 
