@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime 1.2.1, 2020-09-14
+# worldtime 1.2.2, 2020-09-17
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world.
@@ -9,7 +9,7 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.2.1"
+PROG_VERSION="1.2.2"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/New_York".
 
@@ -102,7 +102,7 @@ function list_available {
 #
 # This function writes to screen all available and valid key values,
 # which are by default german town names. This enables the user to
-# select a town whose the time zone notation is known by the script.
+# select a town whose time zone notation is known by the script.
 #
     echo
     if [ "$UILANG" = "Deutsch" ]; then
@@ -117,7 +117,7 @@ function list_available {
 
 function capitalize {
 # Provides the case independence of user input. The user can write a
-# key value aka town name regardlesss of upper or lower case.
+# key value aka town name regardless of upper or lower case.
 #
 # This function will transform an user input to one word or multiple
 # words with each word beginning with a capital letter followed by lower
@@ -151,7 +151,7 @@ function exists_key {
     fi
 }
 
-if [ "$#" = "0" ]; then  # Menu mode, if the user has not giuven a town name at script call.
+if [ "$#" = "0" ]; then  # Menu mode, if the user has not given a town name at script call.
     clear
     list_available
     read -rp " $INPUT_PROMPT " eins zwei
@@ -196,7 +196,7 @@ else
             capitalize "$@"
             if ! exists_key; then   # Recursive call, if the
                 "$0"                # parameters from call are
-                exit 1              # not machting a know key
+                exit 1              # not matching a know key
             fi                      # value. Starts in menu mode.
     esac
 fi
