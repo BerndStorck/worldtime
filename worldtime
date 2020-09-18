@@ -11,12 +11,17 @@
 PROG_NAME="worldtime"
 PROG_VERSION="1.4.1"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
-: <<_EOC_
+
 if ! which reformat &> /dev/null; then
 	echo "reformat will be installed…"
-	sudo apt-get -qq install reformat
+	if ! which apt-get &> /dev/null; then
+		sudo apt-get -qq install reformat
+	elif ! which yum &> /dev/null; then
+		yum install reformat
+	elif ! which pacman &> /dev/null; then
+		sudo pacman -S reformat
+	fi
 fi
-_EOC_
 
 if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface language.
     UILANG="Deutsch"
