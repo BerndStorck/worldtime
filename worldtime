@@ -9,7 +9,7 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.4.1"
+PROG_VERSION="1.5.0"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 
 if ! which reformat &> /dev/null; then
