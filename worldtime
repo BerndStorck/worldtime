@@ -96,6 +96,8 @@ _EOT_
 }
 
 function write_tmp_zones_file {
+# This generates a 25 % shorter list than the file "timezones" due to
+# the case that the external timezones file is not found.
 echo "Auckland:Pacific/Auckland
 Bagdad:Asia/Baghdad
 Berlin:Europe/Berlin
@@ -133,6 +135,31 @@ Wien:Europe/Vienna
 Zürich:Europe/Zurich" > "$ZONES_FILE"
 }
 
+function not2Long {
+	if (( "${#1}" + "${#2}" < "$3" )); then
+		return 0
+	else
+		return 1
+	fi
+}
+
+function reformat_list {
+	RIGHT_MARGIN="$(( $(tput cols) * 3 / 5 ))"
+	WRAP_POINT="$RIGHT_MARGIN"
+	OUTPUT=''
+	for i in $1
+	do
+		if not2Long "$OUTPUT" "$i" "$WRAP_POINT"; then
+			OUTPUT+=" $i"
+		else
+			OUTPUT+="\n $i"
+			(( WRAP_POINT = WRAP_POINT + RIGHT_MARGIN ))
+		fi
+	done
+	echo -e "$OUTPUT"
+	unset OUTPUT 
+}
+
 function list_available {
 # Parses the file $ZONES_FILE, which is a small list or database file
 # with key-value-pairs like "New York:America/New_York".
@@ -144,13 +171,24 @@ function list_available {
 	# RIGHT_MARGIN="$[ $(tput cols) / 5 * 3 ]"
 
     echo
-    if [ "$UILANG" = "Deutsch" ]; then
-        sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
-    sort | tr '\n' ' ' | reformat -p -l 1  ## -w "$RIGHT_MARGIN"
-    else
-        sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
-    sort | uniq | tr '\n' ' ' | reformat -p -l 1   ## -w "$RIGHT_MARGIN
-    fi
+	if which reformat &> /dev/null; then
+		if [ "$UILANG" = "Deutsch" ]; then
+			sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
+		sort | tr '\n' ' ' | reformat -p -l 1  ## -w "$RIGHT_MARGIN"
+		else
+			sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
+		sort | uniq | tr '\n' ' ' | reformat -p -l 1   ## -w "$RIGHT_MARGIN
+		fi
+	else
+		if [ "$UILANG" = "Deutsch" ]; then
+			KEY_LIST="$(sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
+		sort | tr '\n' ' ')"
+		else
+			KEY_LIST="$(sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
+		sort | uniq | tr '\n' ' ')"
+		fi
+		reformat_list "$KEY_LIST"
+	fi
     echo
 }
 
@@ -191,15 +229,15 @@ function exists_key {
 }
 
 # Following code searches the database first in the current directory,
-# after this in the useres home directory as nvisible and as hidden
-# file, finaly in /usr/local/share, and if not found in any of those
-# directories creates a small temporary database file in /tmp.
+# after this in the user's home directory as visible and as hidden
+# file, finally in "/usr/local/share", and if not found in any of those
+# directories creates a small temporary database file in "/tmp".
 if [ -s "./timezones" ]; then
 	ZONES_FILE="./timezones"  # Contains sets like "New York:America/New_York".
-elif [ -f "~/timezones" ]; then
-	ZONES_FILE="~/timezones"
-elif [ -f "~/.timezones" ]; then
-	ZONES_FILE="~/.timezones"
+elif [ -f "$HOME/timezones" ]; then
+	ZONES_FILE="$HOME/timezones"
+elif [ -f "$HOME/.timezones" ]; then
+	ZONES_FILE="$HOME/.timezones"
 elif [ -f "/usr/local/share/timezones" ]; then
 	ZONES_FILE="/usr/local/share/timezones"
 else
