@@ -1,17 +1,16 @@
 #! /bin/bash
 #
-# worldtime 1.2.2, 2020-09-17
+# worldtime, 2020-09-18
 #
 # Shows the local time of one user seleced town from a list of seleced
-# towns all over the world.
+# towns all over the world
 #
 # Bernd Storck, https://www.facebook.com/BStLinux/
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.2.2"
+PROG_VERSION="1.3.0"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
-ZONES_FILE="/usr/local/share/timezones"  # Contains sets like "New York:America/New_York".
 
 if ! which reformat &> /dev/null; then
 	echo "reformat will be installed…"
@@ -96,6 +95,44 @@ cat << _EOT_
 _EOT_
 }
 
+function write_tmp_zones_file {
+echo "Auckland:Pacific/Auckland
+Bagdad:Asia/Baghdad
+Berlin:Europe/Berlin
+Bukarest:Europe/Bucharest
+Chicago:America/Chicago
+Denver:America/Denver
+Detroit:America/Detroit
+Dublin:Europe/Dublin
+Hong Kong:Asia/Hong_Kong
+Istanbul:Europe/Istanbul
+Jakarta:Asia/Jakarta
+Jerusalem:Asia/Jerusalem
+Kiew:Europe/Kiev
+Lissabon:Europe/Lisbon
+London:Europe/London
+Los Angeles:America/Los_Angeles
+Manila:Asia/Manila
+Melbourne:Australia/Melbourne
+Moskau:Europe/Moscow
+Neu Delhi:Asia/Kolkata
+New York:America/New_York
+Oslo:Europe/Oslo
+Paris:Europe/Paris
+Peking:Asia/Shanghai
+Phoenix:America/Phoenix
+Rom:Europe/Rome
+Sao Paulo:America/Sao_Paulo
+Seoul:Asia/Seoul
+Shanghai:Asia/Shanghai
+Stockholm:Europe/Stockholm
+Sydney:Australia/Sydney
+Teheran:Asia/Tehran
+Tokyo:Asia/Tokyo
+Wien:Europe/Vienna
+Zürich:Europe/Zurich" > "$ZONES_FILE"
+}
+
 function list_available {
 # Parses the file $ZONES_FILE, which is a small list or database file
 # with key-value-pairs like "New York:America/New_York".
@@ -104,13 +141,15 @@ function list_available {
 # which are by default german town names. This enables the user to
 # select a town whose time zone notation is known by the script.
 #
+	# RIGHT_MARGIN="$[ $(tput cols) / 5 * 3 ]"
+
     echo
     if [ "$UILANG" = "Deutsch" ]; then
         sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
-    sort | tr '\n' ' ' | reformat -l 1
+    sort | tr '\n' ' ' | reformat -l 1  ## -w "$RIGHT_MARGIN"
     else
         sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
-    sort | uniq | tr '\n' ' ' | reformat -l 1
+    sort | uniq | tr '\n' ' ' | reformat -l 1   ## -w "$RIGHT_MARGIN
     fi
     echo
 }
@@ -144,12 +183,32 @@ function exists_key {
 # Checks for all supported languages whether the key aka town name is in
 # the database file "$ZONES_FILE".
     [ "$UILANG" = "Deutsch" ] && key="${ort}:" || key="/${english_key}"
-    if grep -Fq "$key" $ZONES_FILE; then
+    if grep -Fq "$key" "$ZONES_FILE"; then
         return 0
     else
         return 1
     fi
 }
+
+# Following code searches the database first in the current directory,
+# after this in the useres home directory as nvisible and as hidden
+# file, finaly in /usr/local/share, and if not found in any of those
+# directories creates a small temporary database file in /tmp.
+if [ -s "./timezones" ]; then
+	ZONES_FILE="./timezones"  # Contains sets like "New York:America/New_York".
+elif [ -f "~/timezones" ]; then
+	ZONES_FILE="~/timezones"
+elif [ -f "~/.timezones" ]; then
+	ZONES_FILE="~/.timezones"
+elif [ -f "/usr/local/share/timezones" ]; then
+	ZONES_FILE="/usr/local/share/timezones"
+else
+	TMP_FILE=0
+	ZONES_FILE="/tmp/timezones"
+	write_tmp_zones_file "$ZONES_FILE"
+fi
+
+# echo "$ZONES_FILE"
 
 if [ "$#" = "0" ]; then  # Menu mode, if the user has not given a town name at script call.
     clear
@@ -203,5 +262,9 @@ fi
 
 zone="$(grep -Ei "$key" $ZONES_FILE | cut -d"$FIELD_SEPARATOR" -f2)"
 echo -e "\n $ANSWER_START ${ort}: $(eval "TZ=\"$zone\" date")\n"
+
+if [ "$TMP_FILE" = 0 ]; then
+	rm -rf "$ZONES_FILE"
+fi
 
 exit 0
