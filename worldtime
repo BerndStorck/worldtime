@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime, 2020-09-18
+# worldtime, 2020-09-19
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world
@@ -9,18 +9,18 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.5.0"
+PROG_VERSION="1.5.3"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 
 if ! which reformat &> /dev/null; then
-	echo "reformat will be installed…"
-	if which apt-get &> /dev/null; then
-		sudo apt-get -qq install reformat
-	elif which yum &> /dev/null; then
-		yum install reformat
-	elif which pacman &> /dev/null; then
-		sudo pacman -S reformat
-	fi
+    echo "reformat will be installed…"
+    if which apt-get &> /dev/null; then
+        sudo apt-get -qq install reformat
+    elif which yum &> /dev/null; then
+        yum install reformat
+    elif which pacman &> /dev/null; then
+        sudo pacman -S reformat
+    fi
 fi
 
 if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface language.
@@ -30,6 +30,7 @@ if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface
     WRONG_INPUT_MSG="FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!"
     ANSWER_START="Uhrzeit in"
     FIELD_SEPARATOR=":"
+    ALREADY_EXISTS="Eine Datei 'timezones' gibt es im aktuellen Verzeichnis schon." 
 else
     UILANG="English"
     # PROG_TITLE=
@@ -37,8 +38,8 @@ else
     WRONG_INPUT_MSG="WRONG INPUT: This name is not a valid choice!"
     ANSWER_START="Current time in"
     FIELD_SEPARATOR="/"
+    ALREADY_EXISTS="There is already a file named 'timezones' in the current directory." 
 fi
-
 
 function hilfe_seite {  # German help page.
 cat << _EOT_
@@ -46,11 +47,13 @@ cat << _EOT_
  $PROG_NAME (Version $PROG_VERSION) - Ortzeit ausgewählter Orte anzeigen
 
  AUFRUFPARAMETER / OPTIONEN
-    --list|-l		 Die Zeitzonenliste anzeigen
-    --edit|-e		 Die Zeitzonenliste bearbeiten
-    --hilf		 Diese Hilfe anzeigen
-    --version		 Versionsinfo anzeigen
-    -#			 Die Versionsnummer ausgeben.
+    --list|-l     Die externe Zeitzonenliste anzeigen
+    --edit|-e     Die externe Zeitzonenliste bearbeiten
+    --write|-w    Die interne Zeitzonenliste ins aktuelle Verzeichnis schreiben
+    --stdout      Die interne Zeitzonenliste an Stdout ausgeben.
+    --hilf        Diese Hilfe anzeigen
+    --version     Versionsinfo anzeigen
+    -#            Die Versionsnummer ausgeben.
 
  AUFRUFBEISPIELE
 
@@ -78,11 +81,13 @@ cat << _EOT_
 
  OPTIONS
 
-  --list|-l		 Show the list of time zones.
-  --edit|-e		 Edit the lsit of time zones.
-  --help|-h		 Display this help page.
-  --version		 Show program name and version number.
-  -#			 Print the version number.
+  --list|-l     Show the external list of time zones.
+  --edit|-e     Edit the external list of time zones.
+  --write|-w    Write the internal list of time zones to the current directory.
+  --stdout      Print the internal list of time zones to stdout.
+  --help|-h     Display this help page.
+  --version     Show program name and version number.
+  -#            Print the version number.
 
  EXAMPLES
 
@@ -142,27 +147,27 @@ Zürich:Europe/Zurich" > "$ZONES_FILE"
 }
 
 function is2Long {
-	if (( "${#1}" + "${#2}" > "$3" )); then
-		return 0
-	else
-		return 1
-	fi
+    if (( "${#1}" + "${#2}" > "$3" )); then
+        return 0
+    else
+        return 1
+    fi
 }
 
 function reformat_list {
-	RIGHT_MARGIN="$(( $(tput cols) * 3 / 5 ))"
-	WRAP_POINT="$RIGHT_MARGIN"
-	OUTPUT=''
-	for i in $1
-	do
-		if is2Long "$OUTPUT" "$i" "$WRAP_POINT"; then
-			OUTPUT+="\n"
-			(( WRAP_POINT = WRAP_POINT + RIGHT_MARGIN ))
-		fi
-		OUTPUT+=" $i"
-	done
-	echo -e "$OUTPUT"
-	unset OUTPUT
+    RIGHT_MARGIN="$(( $(tput cols) * 3 / 5 ))"
+    WRAP_POINT="$RIGHT_MARGIN"
+    OUTPUT=''
+    for i in $1
+    do
+        if is2Long "$OUTPUT" "$i" "$WRAP_POINT"; then
+            OUTPUT+="\n"
+            (( WRAP_POINT = WRAP_POINT + RIGHT_MARGIN ))
+        fi
+        OUTPUT+=" $i"
+    done
+    echo -e "$OUTPUT"
+    unset OUTPUT
 }
 
 function list_available {
@@ -173,28 +178,20 @@ function list_available {
 # which are by default german town names. This enables the user to
 # select a town whose time zone notation is known by the script.
 #
-	# RIGHT_MARGIN="$[ $(tput cols) / 5 * 3 ]"
-
-    echo
-	if which reformat &> /dev/null; then
-		if [ "$UILANG" = "Deutsch" ]; then
-			sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
-		sort | tr '\n' ' ' | reformat -p -l 1  ## -w "$RIGHT_MARGIN"
-		else
-			sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
-		sort | uniq | tr '\n' ' ' | reformat -p -l 1   ## -w "$RIGHT_MARGIN
-		fi
-	else
-		if [ "$UILANG" = "Deutsch" ]; then
-			KEY_LIST="$(sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
-		sort | tr '\n' ' ')"
-		else
-			KEY_LIST="$(sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
-		sort | uniq | tr '\n' ' ')"
-		fi
-		reformat_list "$KEY_LIST"
-	fi
-    echo
+  if [ "$UILANG" = "Deutsch" ]; then
+    KEY_LIST="$(sed -E 's/^(.*):.*$/"\1"/' "$ZONES_FILE" |\
+    sort -u | tr '\n' ' ')"
+  else
+    KEY_LIST="$(sed -E -e 's|^.*:.*/(.*)$|"\1"|' -e 's/_/ /g' "$ZONES_FILE" |\
+    sort -u | tr '\n' ' ')"
+  fi
+  echo
+  if which reformat &> /dev/null; then
+    reformat -p -l 1 <<< "$KEY_LIST"
+  else
+    reformat_list "$KEY_LIST"
+  fi
+  echo
 }
 
 function capitalize {
@@ -238,20 +235,18 @@ function exists_key {
 # file, finally in "/usr/local/share", and if not found in any of those
 # directories creates a small temporary database file in "/tmp".
 if [ -s "./timezones" ]; then
-	ZONES_FILE="./timezones"  # Contains sets like "New York:America/New_York".
+    ZONES_FILE="./timezones"  # Contains sets like "New York:America/New_York".
 elif [ -f "$HOME/timezones" ]; then
-	ZONES_FILE="$HOME/timezones"
+    ZONES_FILE="$HOME/timezones"
 elif [ -f "$HOME/.timezones" ]; then
-	ZONES_FILE="$HOME/.timezones"
+    ZONES_FILE="$HOME/.timezones"
 elif [ -f "/usr/local/share/timezones" ]; then
-	ZONES_FILE="/usr/local/share/timezones"
+    ZONES_FILE="/usr/local/share/timezones"
 else
-	TMP_FILE=0
-	ZONES_FILE="/tmp/timezones"
-	write_tmp_zones_file "$ZONES_FILE"
+    TMP_FILE=0
+    ZONES_FILE="/tmp/timezones"
+    write_tmp_zones_file "$ZONES_FILE"
 fi
-
-# echo "$ZONES_FILE"
 
 if [ "$#" = "0" ]; then  # Menu mode, if the user has not given a town name at script call.
     clear
@@ -287,6 +282,21 @@ else
             fi
             exit 0
             ;;
+        --write|-w|-write)
+            write_tmp_zones_file
+            if [ -s ./timezones ]; then
+                echo "$ALREADY_EXISTS"
+            else
+                cp -n /tmp/timezones ./timezones > /dev/null
+                rm -rf /tmp/timezones
+            fi
+            exit 0
+            ;;
+        --stdout)
+            ZONES_FILE="/dev/stdout"
+            write_tmp_zones_file
+            exit 0
+            ;;
         --version|-\#)   # For possible bug reports.
             if [ "$1" = "--version" ]; then
                 echo -n "$PROG_NAME "
@@ -307,7 +317,7 @@ zone="$(grep -Ei "$key" $ZONES_FILE | cut -d"$FIELD_SEPARATOR" -f2)"
 echo -e "\n $ANSWER_START ${ort}: $(eval "TZ=\"$zone\" date")\n"
 
 if [ "$TMP_FILE" = 0 ]; then
-	rm -rf "$ZONES_FILE"
+    rm -rf "$ZONES_FILE"
 fi
 
 exit 0
