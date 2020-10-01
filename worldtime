@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime, 2020-09-19
+# worldtime, 2020-10-01
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world
@@ -9,19 +9,8 @@
 #
 
 PROG_NAME="worldtime"
-PROG_VERSION="1.5.3"
+PROG_VERSION="1.5.4"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
-
-if ! which reformat &> /dev/null; then
-    echo "reformat will be installed…"
-    if which apt-get &> /dev/null; then
-        sudo apt-get -qq install reformat
-    elif which yum &> /dev/null; then
-        yum install reformat
-    elif which pacman &> /dev/null; then
-        sudo pacman -S reformat
-    fi
-fi
 
 if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface language.
     UILANG="Deutsch"
@@ -30,7 +19,7 @@ if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface
     WRONG_INPUT_MSG="FALSCHE EINGABE: Dieser Ort steht nicht zur Wahl!"
     ANSWER_START="Uhrzeit in"
     FIELD_SEPARATOR=":"
-    ALREADY_EXISTS="Eine Datei 'timezones' gibt es im aktuellen Verzeichnis schon." 
+    ALREADY_EXISTS="Eine Datei 'timezones' gibt es im aktuellen Verzeichnis schon."
 else
     UILANG="English"
     # PROG_TITLE=
@@ -38,7 +27,7 @@ else
     WRONG_INPUT_MSG="WRONG INPUT: This name is not a valid choice!"
     ANSWER_START="Current time in"
     FIELD_SEPARATOR="/"
-    ALREADY_EXISTS="There is already a file named 'timezones' in the current directory." 
+    ALREADY_EXISTS="There is already a file named 'timezones' in the current directory."
 fi
 
 function hilfe_seite {  # German help page.
@@ -186,11 +175,7 @@ function list_available {
     sort -u | tr '\n' ' ')"
   fi
   echo
-  if which reformat &> /dev/null; then
-    reformat -p -l 1 <<< "$KEY_LIST"
-  else
-    reformat_list "$KEY_LIST"
-  fi
+  reformat_list "$KEY_LIST"
   echo
 }
 
@@ -321,3 +306,4 @@ if [ "$TMP_FILE" = 0 ]; then
 fi
 
 exit 0
+
