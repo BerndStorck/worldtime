@@ -46,7 +46,17 @@ Das Skript kennt bisher die Zeitzonen zu den folgenden Orten:
 
 ## Anpassung - eine eigene Ortsliste erstellen
 
-Das Programm ermittelt die Zeitzone, dessen Zeit es anzeigt, aus der Datei `/usr/local/share/timezones`. Die mitgelieferte Datei kann man leicht ergänzen oder sich eine eigene alternative Datei schreiben.
+Die mitgelieferte Datei kann man leicht ergänzen oder sich eine eigene alternative Datei schreiben.
+
+### Name und Speicherort der Zeitzonenliste
+
+Das Programm ermittelt die Zeitzone, dessen Zeit es anzeigt, aus einer Datei, die es zuerst im aktuellen Arbeitsverzeichnis, dann im Home-Verzeichnis des Anwenders und zuletzt im Verzeichnis  "/usr/local/share/" sucht. 
+
+| Speicherort / Verzeichnis       | Dateiname                     |
+| ------------------------------- | ----------------------------- |
+| Im aktuellen Arbeitsverzeichnis | `timezones`                   |
+| Home-Verzeichnis des Anwenders  | `timezones` oder `.timezones` |
+| /usr/local/share/               | `timezones`                   |
 
 ### Aufbau der Datei `timezones`
 
