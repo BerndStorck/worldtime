@@ -1,0 +1,29 @@
+cat << _EOT_
+
+ $PROG_NAME (Version $PROG_VERSION) - Ortzeit ausgewählter Orte anzeigen
+
+ AUFRUFPARAMETER / OPTIONEN
+    --list|-l     Die externe Zeitzonenliste anzeigen
+    --edit|-e     Die externe Zeitzonenliste bearbeiten
+    --write|-w    Die interne Zeitzonenliste ins aktuelle Verzeichnis schreiben
+    --stdout      Die interne Zeitzonenliste an Stdout ausgeben.
+    --hilf        Diese Hilfe anzeigen
+    --version     Versionsinfo anzeigen
+    -#            Die Versionsnummer ausgeben.
+
+ AUFRUFBEISPIELE
+
+  $SCRIPT_NAME
+
+      Zeigt eine Liste von Ortsnamen an, aus denen man einen Namen
+      auswählten kann, um die zugehörige aktuelle Ortszeit anzeigen
+      zu lassen.
+
+  $SCRIPT_NAME new york
+
+      Zeigt die aktuelle Ortszeit von New York an.
+
+ Kodiert von Bernd Storck, facebook.com/BStLinux/
+ (GNU/General Public License version 2.0)
+ 
+_EOT_

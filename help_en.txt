@@ -1,0 +1,29 @@
+cat << _EOT_
+
+ $PROG_NAME (Version $PROG_VERSION) - Show local time of a foreign town
+
+ OPTIONS
+
+  --list|-l     Show the external list of time zones.
+  --edit|-e     Edit the external list of time zones.
+  --write|-w    Write the internal list of time zones to the current directory.
+  --stdout      Print the internal list of time zones to stdout.
+  --help|-h     Display this help page.
+  --version     Show program name and version number.
+  -#            Print the version number.
+
+ EXAMPLES
+
+  $SCRIPT_NAME
+
+      Shows a list of town names, from which you can chose one to see
+      the local time of this town.
+
+  $SCRIPT_NAME new york
+
+      Shows the current time of New York.
+
+ Coded by Bernd Storck, facebook.com/BStLinux/
+ (GNU/General Public License version 2.0)
+
+_EOT_
