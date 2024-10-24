@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# worldtime, 2020-10-01
+# worldtime, 2020-10-01, 2024-10-24
 #
 # Shows the local time of one user seleced town from a list of seleced
 # towns all over the world
@@ -8,8 +8,10 @@
 # Bernd Storck, https://www.facebook.com/BStLinux/
 #
 
+# set -x
+
 PROG_NAME="worldtime"
-PROG_VERSION="1.5.4"
+PROG_VERSION="1.5.5"
 SCRIPT_NAME="$(basename "$0")"  # is defined for the case the user has renamed the script file.
 
 if [ "${LANG::2}" == "de" ]; then  # sets a flag variable for the user interface language.
@@ -31,6 +33,12 @@ else
 fi
 
 function hilfe_seite {  # German help page.
+  if [ -f "help_de.txt" ]; then
+
+    source "help_de.txt"
+
+  else
+
 cat << _EOT_
 
  $PROG_NAME (Version $PROG_VERSION) - Ortzeit ausgewählter Orte anzeigen
@@ -58,12 +66,20 @@ cat << _EOT_
 
  Kodiert von Bernd Storck, facebook.com/BStLinux/
  (GNU/General Public License version 2.0)
-
+ 
 _EOT_
+
+  fi
 }
 
 
 function help_page {
+  if [ -f "help_en.txt" ]; then
+
+    source "help_en.txt"
+
+  else
+
 cat << _EOT_
 
  $PROG_NAME (Version $PROG_VERSION) - Show local time of a foreign town
@@ -93,6 +109,8 @@ cat << _EOT_
  (GNU/General Public License version 2.0)
 
 _EOT_
+
+  fi
 }
 
 function write_tmp_zones_file {
@@ -175,8 +193,11 @@ function list_available {
     sort -u | tr '\n' ' ')"
   fi
   echo
-  reformat_list "$KEY_LIST"
+  # reformat_list "$KEY_LIST"
+  fold -w "$(( $(tput cols) * 3 / 5 ))" -s <<< "$KEY_LIST" |\
+  sed -E 's:^.*$: &:'
   echo
+exit
 }
 
 function capitalize {
@@ -236,9 +257,9 @@ fi
 if [ "$#" = "0" ]; then  # Menu mode, if the user has not given a town name at script call.
     clear
     list_available
-    read -rp " $INPUT_PROMPT " eins zwei
+    read -rp " $INPUT_PROMPT " eins zwei drei
 
-    capitalize "$eins" "$zwei"
+    capitalize "$eins" "$zwei" "$drei"
     unset eins zwei
     if ! exists_key; then
         echo -e "\n $WRONG_INPUT_MSG\n"
